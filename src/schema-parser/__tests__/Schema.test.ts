@@ -390,7 +390,7 @@ describe('Schema', () => {
     `);
 
     schema.tables.forEach(table =>
-      console.log(generate(table.toTypeScriptType()).code)
+      console.log(generate(table.toResourceClass()).code)
     );
   });
 });

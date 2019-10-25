@@ -9,11 +9,15 @@ export default function mapColumnType(type: string): ColumnType {
     case 'character':
     case 'uuid':
     case 'inet':
+    case 'json':
+    case 'time':
       return 'string';
     case 'integer':
     case 'bigint':
       return 'integer';
     case 'decimal':
+    case 'double':
+    case 'numeric':
       return 'float';
     case 'boolean':
       return 'boolean';

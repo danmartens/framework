@@ -1,6 +1,5 @@
 import * as types from '@babel/types';
 import camelCase from 'lodash/camelCase';
-import capitalize from 'lodash/capitalize';
 
 import Column from './Column';
 
@@ -17,13 +16,15 @@ export default class Table {
     this.columns = columns;
   }
 
+  get normalizedName() {
+    let normalizedName = camelCase(this.name);
+
+    return normalizedName[0].toUpperCase() + normalizedName.substr(1);
+  }
+
   toTypeScriptType() {
-    let interfaceName = camelCase(this.name);
-
-    interfaceName = interfaceName[0].toUpperCase() + interfaceName.substr(1);
-
     return types.tsInterfaceDeclaration(
-      types.identifier(interfaceName),
+      types.identifier(`${this.normalizedName}Record`),
       null,
       null,
       types.tsInterfaceBody(
@@ -62,5 +63,38 @@ export default class Table {
         )
       ])
     ]);
+  }
+
+  toResourceClass() {
+    const declaration = types.classDeclaration(
+      types.identifier(this.normalizedName),
+      types.identifier('Resource'),
+      types.classBody(
+        this.columns.map(column =>
+          types.classMethod(
+            'get',
+            types.identifier(column.normalizedName),
+            [],
+            types.blockStatement([
+              types.returnStatement(
+                types.memberExpression(
+                  types.memberExpression(
+                    types.identifier('this'),
+                    types.identifier('attributes')
+                  ),
+                  types.identifier(column.name)
+                )
+              )
+            ])
+          )
+        )
+      )
+    );
+
+    declaration.superTypeParameters = types.tsTypeParameterInstantiation([
+      types.tsTypeReference(types.identifier(`${this.normalizedName}Record`))
+    ]);
+
+    return declaration;
   }
 }
