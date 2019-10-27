@@ -30,15 +30,21 @@ export default class Query {
   }
 
   protected fromSQL() {
-    return `FROM ${this.table.toSQL()}`;
+    const { select = [this.table.all()] } = this.options;
+
+    const tables = new Set<Table<any>>();
+
+    for (const column of select) {
+      tables.add(column.table);
+    }
+
+    return `FROM ${[...tables].map(table => table.toSQL()).join(', ')}`;
   }
 
   protected selectSQL() {
-    const { select } = this.options;
+    const { select = [this.table.all()] } = this.options;
 
-    return select == null
-      ? `SELECT *`
-      : `SELECT ${select.map(column => column.toSQL()).join(', ')}`;
+    return `SELECT ${select.map(column => column.toSQL()).join(', ')}`;
   }
 
   protected joinSQL(values: QueryValues) {

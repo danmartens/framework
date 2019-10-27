@@ -1,3 +1,4 @@
+import Column from './columns/Column';
 import StringColumn from './columns/StringColumn';
 import NumberColumn from './columns/NumberColumn';
 
@@ -30,6 +31,10 @@ export default class Table<
     return new columnClass(this, name as string) as InstanceType<
       ColumnType[TSchema[K]['type']]
     >;
+  }
+
+  all(): Column {
+    return new Column(this, '*');
   }
 
   toSQL() {

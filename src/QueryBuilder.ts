@@ -1,7 +1,8 @@
 import Table from './Table';
 import Resource from './Resource';
 import OrderByExpression from './OrderByExpression';
-import EqualOperator from './EqualOperator';
+import Operator from './operators/Operator';
+import EqualOperator from './operators/EqualOperator';
 import JoinClause, { JoinType } from './JoinClause';
 import Column from './columns/Column';
 import Query from './Query';
@@ -20,31 +21,50 @@ export default class QueryBuilder<
     this.options = options || {};
   }
 
-  select(...columns: Column[]): this {
+  select(...columns: Array<Column | keyof TRecord>): this {
     const select = this.options.select || [];
 
     return new QueryBuilder(this.table, {
       ...this.options,
-      select: [...select, ...columns]
+      select: [
+        ...select,
+        ...columns.map(columnOrColumnName => {
+          if (columnOrColumnName instanceof Column) {
+            return columnOrColumnName;
+          } else {
+            return this.table.col(columnOrColumnName);
+          }
+        })
+      ]
     }) as this;
   }
 
-  where(conditions: WhereConditions<TRecord>): this {
+  where(...conditions: Array<WhereConditions<TRecord> | Operator>): this {
     let where;
 
-    for (const [key, value] of Object.entries(conditions)) {
-      let operator;
-
-      if (Array.isArray(value)) {
-        operator = this.table.col(key).in(value);
+    for (const condition of conditions) {
+      if (condition instanceof Operator) {
+        if (where == null) {
+          where = condition;
+        } else {
+          where = where.and(condition);
+        }
       } else {
-        operator = this.table.col(key).eq(value);
-      }
+        for (const [key, value] of Object.entries(condition)) {
+          let operator;
 
-      if (where == null) {
-        where = operator;
-      } else {
-        where = where.and(operator);
+          if (Array.isArray(value)) {
+            operator = this.table.col(key).in(value);
+          } else {
+            operator = this.table.col(key).eq(value);
+          }
+
+          if (where == null) {
+            where = operator;
+          } else {
+            where = where.and(operator);
+          }
+        }
       }
     }
 
@@ -55,22 +75,32 @@ export default class QueryBuilder<
     return new QueryBuilder(this.table, { ...this.options, where }) as this;
   }
 
-  orWhere(conditions: WhereConditions<TRecord>): this {
+  orWhere(...conditions: Array<WhereConditions<TRecord> | Operator>): this {
     let where;
 
-    for (const [key, value] of Object.entries(conditions)) {
-      let operator;
-
-      if (Array.isArray(value)) {
-        operator = this.table.col(key).in(value);
+    for (const condition of conditions) {
+      if (condition instanceof Operator) {
+        if (where == null) {
+          where = condition;
+        } else {
+          where = where.and(condition);
+        }
       } else {
-        operator = this.table.col(key).eq(value);
-      }
+        for (const [key, value] of Object.entries(condition)) {
+          let operator;
 
-      if (where == null) {
-        where = operator;
-      } else {
-        where = where.and(operator);
+          if (Array.isArray(value)) {
+            operator = this.table.col(key).in(value);
+          } else {
+            operator = this.table.col(key).eq(value);
+          }
+
+          if (where == null) {
+            where = operator;
+          } else {
+            where = where.and(operator);
+          }
+        }
       }
     }
 
