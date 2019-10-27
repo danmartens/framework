@@ -1,7 +1,7 @@
 export type ValuePosition = number;
 
 export default class QueryValues {
-  protected readonly values: Array<string | number> = [];
+  protected readonly values: Array<string | number>;
 
   constructor(...values: Array<string | number>) {
     this.values = values;
@@ -13,7 +13,11 @@ export default class QueryValues {
     return this.values.length;
   }
 
-  toString() {
+  toSQL() {
+    if (this.values.length === 0) {
+      return;
+    }
+
     return `VALUES(${this.values
       .map((_, index) => `$${index + 1}`)
       .join(', ')})`;

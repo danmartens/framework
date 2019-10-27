@@ -1,5 +1,6 @@
-import Table from './Table';
-import EqualOperator, { EqualRHS } from './EqualOperator';
+import Table from '../Table';
+import EqualOperator, { EqualRHS } from '../operators/EqualOperator';
+import OrderByExpression from '../OrderByExpression';
 
 export default class Column {
   readonly table: Table<any>;
@@ -14,7 +15,15 @@ export default class Column {
     return new EqualOperator(this, rhs);
   }
 
-  toString() {
+  asc() {
+    return new OrderByExpression(this, 'ASC');
+  }
+
+  desc() {
+    return new OrderByExpression(this, 'DESC');
+  }
+
+  toSQL() {
     if (this.name === '*') {
       return `"${this.table.name}".*`;
     } else {

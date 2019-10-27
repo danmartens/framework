@@ -1,6 +1,6 @@
-import { Operator } from './Operator';
+import Operator from './operators/Operator';
 import Table from './Table';
-import Column from './Column';
+import Column from './columns/Column';
 import QueryValues from './QueryValues';
 
 export default function toSQL(
@@ -35,5 +35,5 @@ export default function toSQL(
     return `(${value.map(v => toSQL(v, values)).join(', ')})`;
   }
 
-  return value.toString(values);
+  return value.toSQL(values);
 }

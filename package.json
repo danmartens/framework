@@ -10,7 +10,8 @@
   "scripts": {
     "build:watch": "tsc --watch",
     "serve": "nodemon lib/index.js",
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@babel/generator": "^7.6.4",

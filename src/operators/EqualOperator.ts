@@ -1,8 +1,8 @@
 import InfixOperator from './InfixOperator';
 import InOperator from './InOperator';
-import toSQL from './toSQL';
-import Column from './Column';
-import QueryValues from './QueryValues';
+import toSQL from '../toSQL';
+import Column from '../columns/Column';
+import QueryValues from '../QueryValues';
 
 export type EqualRHS = Column | number | string | boolean | null;
 
@@ -27,7 +27,7 @@ export default class EqualOperator extends InfixOperator<EqualRHS> {
     });
   }
 
-  toString(values: QueryValues) {
+  toSQL(values: QueryValues) {
     if (this.rhs === null) {
       return `${toSQL(this.lhs, values)} IS ${toSQL(this.rhs, values)}`;
     } else {

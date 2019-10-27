@@ -1,6 +1,6 @@
 import Column from './Column';
-import EqualOperator from './EqualOperator';
-import InOperator from './InOperator';
+import EqualOperator from '../operators/EqualOperator';
+import InOperator from '../operators/InOperator';
 
 export default class NumberColumn extends Column {
   eq(rhs: NumberColumn | number | null) {

@@ -389,8 +389,8 @@ describe('Schema', () => {
 
     `);
 
-    schema.tables.forEach(table =>
-      console.log(generate(table.toResourceClass()).code)
-    );
+    // schema.tables.forEach(table =>
+    //   console.log(generate(table.toResourceClass()).code)
+    // );
   });
 });

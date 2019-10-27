@@ -1,5 +1,5 @@
-import StringColumn from './StringColumn';
-import NumberColumn from './NumberColumn';
+import StringColumn from './columns/StringColumn';
+import NumberColumn from './columns/NumberColumn';
 
 interface ColumnType {
   string: typeof StringColumn;
@@ -30,5 +30,9 @@ export default class Table<
     return new columnClass(this, name as string) as InstanceType<
       ColumnType[TSchema[K]['type']]
     >;
+  }
+
+  toSQL() {
+    return `"${this.name}"`;
   }
 }
