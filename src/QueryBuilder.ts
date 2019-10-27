@@ -40,33 +40,7 @@ export default class QueryBuilder<
   }
 
   where(...conditions: Array<WhereConditions<TRecord> | Operator>): this {
-    let where;
-
-    for (const condition of conditions) {
-      if (condition instanceof Operator) {
-        if (where == null) {
-          where = condition;
-        } else {
-          where = where.and(condition);
-        }
-      } else {
-        for (const [key, value] of Object.entries(condition)) {
-          let operator;
-
-          if (Array.isArray(value)) {
-            operator = this.table.col(key).in(value);
-          } else {
-            operator = this.table.col(key).eq(value);
-          }
-
-          if (where == null) {
-            where = operator;
-          } else {
-            where = where.and(operator);
-          }
-        }
-      }
-    }
+    let where = whereConditionsToOperators(this.table, conditions);
 
     if (this.options.where != null) {
       where = this.options.where.and(where);
@@ -76,33 +50,7 @@ export default class QueryBuilder<
   }
 
   orWhere(...conditions: Array<WhereConditions<TRecord> | Operator>): this {
-    let where;
-
-    for (const condition of conditions) {
-      if (condition instanceof Operator) {
-        if (where == null) {
-          where = condition;
-        } else {
-          where = where.and(condition);
-        }
-      } else {
-        for (const [key, value] of Object.entries(condition)) {
-          let operator;
-
-          if (Array.isArray(value)) {
-            operator = this.table.col(key).in(value);
-          } else {
-            operator = this.table.col(key).eq(value);
-          }
-
-          if (where == null) {
-            where = operator;
-          } else {
-            where = where.and(operator);
-          }
-        }
-      }
-    }
+    let where = whereConditionsToOperators(this.table, conditions);
 
     if (this.options.where != null) {
       where = this.options.where.or(where);
@@ -159,4 +107,39 @@ export default class QueryBuilder<
   ) {
     return Promise.resolve([]) as any;
   }
+}
+
+function whereConditionsToOperators(
+  table: Table<any>,
+  conditions: Array<WhereConditions<any> | Operator>
+): Operator {
+  let where;
+
+  for (const condition of conditions) {
+    if (condition instanceof Operator) {
+      if (where == null) {
+        where = condition;
+      } else {
+        where = where.and(condition);
+      }
+    } else {
+      for (const [key, value] of Object.entries(condition)) {
+        let operator;
+
+        if (Array.isArray(value)) {
+          operator = table.col(key).in(value);
+        } else {
+          operator = table.col(key).eq(value);
+        }
+
+        if (where == null) {
+          where = operator;
+        } else {
+          where = where.and(operator);
+        }
+      }
+    }
+  }
+
+  return where;
 }
