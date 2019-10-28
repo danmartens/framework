@@ -4,6 +4,7 @@ import JoinClause from './JoinClause';
 import Column from './columns/Column';
 import BaseResource from './BaseResource';
 import Table from './Table';
+import CountFunction from './CountFunction';
 
 export interface TString {
   type: 'string';
@@ -61,7 +62,7 @@ export type OrderConditions<T> = {
 };
 
 export interface QueryOptions {
-  select?: Column[];
+  select?: Array<Column | CountFunction>;
   where?: Operator;
   join?: JoinClause[];
   orderBy?: OrderByExpression[];

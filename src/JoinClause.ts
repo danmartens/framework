@@ -1,5 +1,5 @@
 import Table from './Table';
-import EqualOperator from './EqualOperator';
+import EqualOperator from './operators/EqualOperator';
 import QueryValues from './QueryValues';
 
 export enum JoinType {

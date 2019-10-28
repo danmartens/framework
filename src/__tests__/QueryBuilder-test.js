@@ -130,6 +130,16 @@ describe('QueryBuilder', () => {
     );
   });
 
+  test('selecting count', () => {
+    let query = new QueryBuilder(Product);
+
+    query = query.select(products.col('id').count('products_count'));
+
+    expect(query.toSQL().text).toEqual(
+      'SELECT COUNT("products"."id") AS products_count FROM "products"'
+    );
+  });
+
   describe('#where()', () => {
     test('object where conditions', () => {
       let query = new QueryBuilder(Product);

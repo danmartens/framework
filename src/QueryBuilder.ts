@@ -15,6 +15,7 @@ import {
   WhereConditions,
   OrderConditions
 } from './types';
+import CountFunction from './CountFunction';
 
 export default class QueryBuilder<
   TSchema extends TableSchema,
@@ -41,7 +42,7 @@ export default class QueryBuilder<
     });
   }
 
-  select(...columns: Array<Column | keyof TSchema>): this {
+  select(...columns: Array<Column | CountFunction | keyof TSchema>): this {
     const select = this.options.select || [];
 
     return new QueryBuilder(this.resourceClass as any, {
@@ -49,7 +50,10 @@ export default class QueryBuilder<
       select: [
         ...select,
         ...columns.map(columnOrColumnName => {
-          if (columnOrColumnName instanceof Column) {
+          if (
+            columnOrColumnName instanceof Column ||
+            columnOrColumnName instanceof CountFunction
+          ) {
             return columnOrColumnName;
           } else {
             return this.table.col(columnOrColumnName);

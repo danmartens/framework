@@ -1,7 +1,10 @@
 import Table from '../Table';
-import EqualOperator, { EqualRHS } from '../operators/EqualOperator';
-import NotEqualOperator, { NotEqualRHS } from '../operators/NotEqualOperator';
+import EqualOperator, { RHS as EqualRHS } from '../operators/EqualOperator';
+import NotEqualOperator, {
+  RHS as NotEqualRHS
+} from '../operators/NotEqualOperator';
 import OrderByExpression from '../OrderByExpression';
+import CountFunction from '../CountFunction';
 
 export default class Column {
   readonly table: Table<any>;
@@ -32,6 +35,10 @@ export default class Column {
 
   desc() {
     return new OrderByExpression(this, 'DESC');
+  }
+
+  count(alias?: string) {
+    return new CountFunction(this, alias);
   }
 
   toSQL() {
