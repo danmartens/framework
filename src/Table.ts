@@ -16,7 +16,7 @@ const types: ColumnType = {
 
 export default class Table<TSchema extends TableSchema> {
   readonly name: string;
-  protected readonly schema: TSchema;
+  readonly schema: TSchema;
 
   constructor(name: string, schema: TSchema) {
     this.name = name;

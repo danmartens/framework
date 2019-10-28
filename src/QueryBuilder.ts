@@ -1,5 +1,3 @@
-import DataLoader from 'dataloader';
-
 import Table from './Table';
 import OrderByExpression from './OrderByExpression';
 import Operator from './operators/Operator';
@@ -10,50 +8,28 @@ import Query from './Query';
 import getClient from './getClient';
 import {
   TableSchema,
-  ResourceClass,
   QueryOptions,
   WhereConditions,
   OrderConditions
 } from './types';
 import CountFunction from './CountFunction';
 
-export default class QueryBuilder<
-  TSchema extends TableSchema,
-  TResource extends ResourceClass<TSchema>,
-  TPrimaryKey = number
-> implements PromiseLike<InstanceType<TResource>[]> {
+export default class QueryBuilder<TSchema extends TableSchema>
+  implements PromiseLike<object[]> {
   protected readonly table: Table<TSchema>;
-  protected readonly resourceClass: TResource;
   protected readonly options: QueryOptions;
-  protected readonly dataLoader: DataLoader<
-    TPrimaryKey,
-    InstanceType<TResource>
-  >;
 
-  constructor(resourceClass: TResource, options?: QueryOptions) {
-    this.table = resourceClass.table;
-    this.resourceClass = resourceClass;
+  constructor(table: Table<TSchema>, options?: QueryOptions) {
+    this.table = table;
     this.options = options || {};
-
-    this.dataLoader = new DataLoader(async ids => {
-      const resources = await this.where(this.table.col('id').eq(ids));
-
-      return ids.map(id => resources.find(resource => resource.id === id));
-    });
   }
 
-  find(ids: TPrimaryKey | TPrimaryKey[]) {
-    if (Array.isArray(ids)) {
-      return this.dataLoader.loadMany(ids);
-    } else {
-      return this.dataLoader.load(ids);
-    }
-  }
-
-  select(...columns: Array<Column | CountFunction | keyof TSchema>): this {
+  select(
+    ...columns: Array<Column | CountFunction | keyof TSchema>
+  ): QueryBuilder<TSchema> {
     const select = this.options.select || [];
 
-    return new QueryBuilder(this.resourceClass as any, {
+    return new QueryBuilder(this.table, {
       ...this.options,
       select: [
         ...select,
@@ -68,51 +44,42 @@ export default class QueryBuilder<
           }
         })
       ]
-    }) as this;
+    });
   }
 
-  where(...conditions: Array<WhereConditions<TSchema> | Operator>): this {
+  where(...conditions: Array<WhereConditions<TSchema> | Operator>) {
     let where = whereConditionsToOperators(this.table, conditions);
 
     if (this.options.where != null) {
       where = this.options.where.and(where);
     }
 
-    return new QueryBuilder(this.resourceClass as any, {
-      ...this.options,
-      where
-    }) as this;
+    return this.mergeOptions({ where });
   }
 
-  orWhere(...conditions: Array<WhereConditions<TSchema> | Operator>): this {
+  orWhere(...conditions: Array<WhereConditions<TSchema> | Operator>) {
     let where = whereConditionsToOperators(this.table, conditions);
 
     if (this.options.where != null) {
       where = this.options.where.or(where);
     }
 
-    return new QueryBuilder(this.resourceClass as any, {
-      ...this.options,
-      where
-    }) as this;
+    return this.mergeOptions({ where });
   }
 
-  join(type: JoinType, table: Table<any>, operator: EqualOperator): this {
+  join(type: JoinType, table: Table<any>, operator: EqualOperator) {
     const join = this.options.join || [];
 
     join.push(new JoinClause(type, table, operator));
 
-    return new QueryBuilder(this.resourceClass as any, {
-      ...this.options,
-      join
-    }) as this;
+    return this.mergeOptions({ join });
   }
 
-  innerJoin(table: Table<any>, operator: EqualOperator): this {
+  innerJoin(table: Table<any>, operator: EqualOperator) {
     return this.join(JoinType.Inner, table, operator);
   }
 
-  orderBy(conditions: OrderConditions<TSchema> | OrderByExpression): this {
+  orderBy(conditions: OrderConditions<TSchema> | OrderByExpression) {
     const orderBy = this.options.orderBy || [];
 
     if (conditions instanceof OrderByExpression) {
@@ -127,24 +94,19 @@ export default class QueryBuilder<
       }
     }
 
-    return new QueryBuilder(this.resourceClass as any, {
-      ...this.options,
-      orderBy
-    }) as this;
+    return this.mergeOptions({ orderBy });
   }
 
-  limit(limit: number): this {
-    return new QueryBuilder(this.resourceClass as any, {
-      ...this.options,
+  limit(limit: number) {
+    return this.mergeOptions({
       limit
-    }) as this;
+    });
   }
 
-  offset(offset: number): this {
-    return new QueryBuilder(this.resourceClass as any, {
-      ...this.options,
+  offset(offset: number) {
+    return this.mergeOptions({
       offset
-    }) as this;
+    });
   }
 
   toSQL() {
@@ -152,7 +114,7 @@ export default class QueryBuilder<
   }
 
   then(
-    onfulfilled?: ((value: InstanceType<TResource>[]) => unknown) | null,
+    onfulfilled?: ((value: object[]) => unknown) | null,
     onrejected?: () => any
   ) {
     return this.client
@@ -160,11 +122,16 @@ export default class QueryBuilder<
         return client.query(this.toSQL());
       })
       .then(result => {
-        return result.rows.map(
-          row => new this.resourceClass(row) as InstanceType<TResource>
-        );
+        return result.rows;
       })
       .then(onfulfilled, onrejected);
+  }
+
+  protected mergeOptions(options: QueryOptions): QueryBuilder<TSchema> {
+    return new QueryBuilder(this.table, {
+      ...this.options,
+      ...options
+    });
   }
 
   protected get client() {

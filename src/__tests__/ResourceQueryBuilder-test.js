@@ -1,5 +1,5 @@
 import getClient from '../getClient';
-import QueryBuilder from '../QueryBuilder';
+import ResourceQueryBuilder from '../ResourceQueryBuilder';
 import Table from '../Table';
 
 jest.mock('../getClient');
@@ -24,7 +24,7 @@ const variants = new Table('variants', {
 
 class Product extends products.Resource {}
 
-const productsQuery = new QueryBuilder(Product);
+const productsQuery = new ResourceQueryBuilder(Product);
 
 class Variant extends variants.Resource {
   async product() {
@@ -32,7 +32,7 @@ class Variant extends variants.Resource {
   }
 }
 
-describe('QueryBuilder', () => {
+describe('ResourceQueryBuilder', () => {
   describe('#then()', () => {
     test('wraps the results in Resource classes', async () => {
       getClient.__setNextResult({
@@ -44,7 +44,7 @@ describe('QueryBuilder', () => {
         ]
       });
 
-      const result = await new QueryBuilder(Product);
+      const result = await new ResourceQueryBuilder(Product);
 
       expect(result[0]).toBeInstanceOf(Product);
 
@@ -94,55 +94,82 @@ describe('QueryBuilder', () => {
     });
   });
 
-  test('selecting all columns', () => {
-    let query = new QueryBuilder(Product);
+  describe('#select()', () => {
+    test('selecting all columns', () => {
+      let query = new ResourceQueryBuilder(Product);
 
-    expect(query.toSQL().text).toEqual('SELECT "products".* FROM "products"');
-  });
+      expect(query.toSQL().text).toEqual('SELECT "products".* FROM "products"');
+    });
 
-  test('selecting specific columns', () => {
-    let query = new QueryBuilder(Product);
+    test('selecting specific columns', () => {
+      let query = new ResourceQueryBuilder(Product);
 
-    query = query.select('id', 'name');
+      query = query.select('id', 'name');
 
-    expect(query.toSQL().text).toEqual(
-      'SELECT "products"."id", "products"."name" FROM "products"'
-    );
-  });
+      expect(query.toSQL().text).toEqual(
+        'SELECT "products"."id", "products"."name" FROM "products"'
+      );
+    });
 
-  test('selecting columns from other tables', () => {
-    let query = new QueryBuilder(Product);
+    test('selecting columns from other tables', () => {
+      let query = new ResourceQueryBuilder(Product);
 
-    query = query.select('id', variants.col('id'));
+      query = query.select('id', variants.col('id'));
 
-    expect(query.toSQL().text).toEqual(
-      'SELECT "products"."id", "variants"."id" FROM "products", "variants"'
-    );
-  });
+      expect(query.toSQL().text).toEqual(
+        'SELECT "products"."id", "variants"."id" FROM "products", "variants"'
+      );
+    });
 
-  test('aliasing columns', () => {
-    let query = new QueryBuilder(Product);
+    test('aliasing columns', () => {
+      let query = new ResourceQueryBuilder(Product);
 
-    query = query.select(products.col('id').as('product_id'));
+      query = query.select(products.col('id').as('product_id'));
 
-    expect(query.toSQL().text).toEqual(
-      'SELECT "products"."id" AS "product_id" FROM "products"'
-    );
-  });
+      expect(query.toSQL().text).toEqual(
+        'SELECT "products"."id" AS "product_id" FROM "products"'
+      );
+    });
 
-  test('selecting count', () => {
-    let query = new QueryBuilder(Product);
+    test('selecting count', () => {
+      let query = new ResourceQueryBuilder(Product);
 
-    query = query.select(products.col('id').count('products_count'));
+      query = query.select(products.col('id').count('products_count'));
 
-    expect(query.toSQL().text).toEqual(
-      'SELECT COUNT("products"."id") AS products_count FROM "products"'
-    );
+      expect(query.toSQL().text).toEqual(
+        'SELECT COUNT("products"."id") AS products_count FROM "products"'
+      );
+    });
+
+    test('results are returned as plain objects', async () => {
+      let query = new ResourceQueryBuilder(Product);
+
+      query = query.select('id');
+
+      getClient.__setNextResult({
+        rows: [
+          {
+            id: 1
+          },
+          {
+            id: 2
+          }
+        ]
+      });
+
+      const results = await query;
+
+      expect(results[0].id).toEqual(1);
+      expect(results[1].id).toEqual(2);
+
+      expect(results[0]).not.toBeInstanceOf(Product);
+      expect(results[1]).not.toBeInstanceOf(Product);
+    });
   });
 
   describe('#where()', () => {
     test('object where conditions', () => {
-      let query = new QueryBuilder(Product);
+      let query = new ResourceQueryBuilder(Product);
 
       query = query.where({ name: 'Test Product' });
 
@@ -154,7 +181,7 @@ describe('QueryBuilder', () => {
     });
 
     test('operator where conditions', () => {
-      let query = new QueryBuilder(Product);
+      let query = new ResourceQueryBuilder(Product);
 
       query = query.where(products.col('name').eq('Test Product'));
 
@@ -168,7 +195,7 @@ describe('QueryBuilder', () => {
 
   describe('#orWhere()', () => {
     test('object where conditions', () => {
-      let query = new QueryBuilder(Product);
+      let query = new ResourceQueryBuilder(Product);
 
       query = query.where({ name: 'Jacket' }).orWhere({ name: 'Coat' });
 
@@ -180,7 +207,7 @@ describe('QueryBuilder', () => {
     });
 
     test('operator where conditions', () => {
-      let query = new QueryBuilder(Product);
+      let query = new ResourceQueryBuilder(Product);
 
       query = query
         .where({ name: 'Jacket' })
