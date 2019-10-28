@@ -42,6 +42,14 @@ export default class QueryBuilder<
     });
   }
 
+  find(ids: TPrimaryKey | TPrimaryKey[]) {
+    if (Array.isArray(ids)) {
+      return this.dataLoader.loadMany(ids);
+    } else {
+      return this.dataLoader.load(ids);
+    }
+  }
+
   select(...columns: Array<Column | CountFunction | keyof TSchema>): this {
     const select = this.options.select || [];
 
@@ -61,10 +69,6 @@ export default class QueryBuilder<
         })
       ]
     }) as this;
-  }
-
-  async find(id: TPrimaryKey) {
-    return this.dataLoader.load(id);
   }
 
   where(...conditions: Array<WhereConditions<TSchema> | Operator>): this {
