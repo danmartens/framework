@@ -1,6 +1,8 @@
 import Column from './columns/Column';
 import StringColumn from './columns/StringColumn';
 import NumberColumn from './columns/NumberColumn';
+import BaseResource from './BaseResource';
+import { TableSchema } from './types';
 
 interface ColumnType {
   string: typeof StringColumn;
@@ -12,11 +14,9 @@ const types: ColumnType = {
   number: NumberColumn
 };
 
-export default class Table<
-  TSchema extends { [key: string]: { type: 'string' | 'number' } }
-> {
+export default class Table<TSchema extends TableSchema> {
   readonly name: string;
-  readonly schema: TSchema;
+  protected readonly schema: TSchema;
 
   constructor(name: string, schema: TSchema) {
     this.name = name;
@@ -39,5 +39,15 @@ export default class Table<
 
   toSQL() {
     return `"${this.name}"`;
+  }
+
+  get Resource() {
+    const table = this;
+
+    abstract class Resource extends BaseResource<TSchema> {
+      static readonly table = table;
+    }
+
+    return Resource;
   }
 }

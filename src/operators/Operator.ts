@@ -1,5 +1,5 @@
-import AndOperator, { AndRHS } from './AndOperator';
-import OrOperator, { OrRHS } from './OrOperator';
+import AndOperator, { RHS as AndRHS } from './AndOperator';
+import OrOperator, { RHS as OrRHS } from './OrOperator';
 import QueryValues from '../QueryValues';
 
 export default abstract class Operator {

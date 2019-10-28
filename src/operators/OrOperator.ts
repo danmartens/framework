@@ -2,13 +2,13 @@ import toSQL from '../toSQL';
 import Operator from './Operator';
 import QueryValues from '../QueryValues';
 
-export type OrRHS = Operator;
+export type RHS = Operator;
 
 export default class OrOperator extends Operator {
   readonly lhs: Operator;
-  readonly rhs: OrRHS;
+  readonly rhs: RHS;
 
-  constructor(lhs: Operator, rhs: OrRHS) {
+  constructor(lhs: Operator, rhs: RHS) {
     super();
 
     this.lhs = lhs;

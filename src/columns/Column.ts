@@ -1,5 +1,6 @@
 import Table from '../Table';
 import EqualOperator, { EqualRHS } from '../operators/EqualOperator';
+import NotEqualOperator, { NotEqualRHS } from '../operators/NotEqualOperator';
 import OrderByExpression from '../OrderByExpression';
 
 export default class Column {
@@ -19,6 +20,10 @@ export default class Column {
 
   eq(rhs: EqualRHS) {
     return new EqualOperator(this, rhs);
+  }
+
+  notEq(rhs: NotEqualRHS) {
+    return new NotEqualOperator(this, rhs);
   }
 
   asc() {

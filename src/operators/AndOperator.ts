@@ -2,14 +2,14 @@ import toSQL from '../toSQL';
 import Operator from './Operator';
 import QueryValues from '../QueryValues';
 
-export type AndLHS = Operator;
-export type AndRHS = Operator;
+export type LHS = Operator;
+export type RHS = Operator;
 
 export default class AndOperator extends Operator {
-  protected readonly lhs: AndLHS;
-  protected readonly rhs: AndRHS;
+  protected readonly lhs: LHS;
+  protected readonly rhs: RHS;
 
-  constructor(lhs: AndLHS, rhs: AndRHS) {
+  constructor(lhs: LHS, rhs: RHS) {
     super();
 
     this.lhs = lhs;
