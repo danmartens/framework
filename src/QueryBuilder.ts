@@ -47,7 +47,7 @@ export default class QueryBuilder<TSchema extends TableSchema>
     });
   }
 
-  where(...conditions: Array<WhereConditions<TSchema> | Operator>) {
+  where(conditions: WhereConditions<TSchema>) {
     let where = whereConditionsToOperators(this.table, conditions);
 
     if (this.options.where != null) {
@@ -57,7 +57,7 @@ export default class QueryBuilder<TSchema extends TableSchema>
     return this.mergeOptions({ where });
   }
 
-  orWhere(...conditions: Array<WhereConditions<TSchema> | Operator>) {
+  orWhere(conditions: WhereConditions<TSchema>) {
     let where = whereConditionsToOperators(this.table, conditions);
 
     if (this.options.where != null) {
@@ -139,34 +139,30 @@ export default class QueryBuilder<TSchema extends TableSchema>
   }
 }
 
-function whereConditionsToOperators(
+function whereConditionsToOperators<TSchema extends TableSchema>(
   table: Table<any>,
-  conditions: Array<WhereConditions<any> | Operator>
+  conditions: WhereConditions<TSchema>
 ): Operator {
   let where;
 
-  for (const condition of conditions) {
-    if (condition instanceof Operator) {
-      if (where == null) {
-        where = condition;
+  if (conditions instanceof Operator) {
+    where = conditions;
+  } else if (typeof conditions === 'function') {
+    where = conditions(table);
+  } else {
+    for (const [key, value] of Object.entries(conditions)) {
+      let operator;
+
+      if (Array.isArray(value)) {
+        operator = table.col(key).in(value);
       } else {
-        where = where.and(condition);
+        operator = table.col(key).eq(value);
       }
-    } else {
-      for (const [key, value] of Object.entries(condition)) {
-        let operator;
 
-        if (Array.isArray(value)) {
-          operator = table.col(key).in(value);
-        } else {
-          operator = table.col(key).eq(value);
-        }
-
-        if (where == null) {
-          where = operator;
-        } else {
-          where = where.and(operator);
-        }
+      if (where == null) {
+        where = operator;
+      } else {
+        where = where.and(operator);
       }
     }
   }

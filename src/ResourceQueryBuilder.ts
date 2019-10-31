@@ -1,7 +1,6 @@
 import DataLoader from 'dataloader';
 
 import OrderByExpression from './OrderByExpression';
-import Operator from './operators/Operator';
 import EqualOperator from './operators/EqualOperator';
 import { JoinType } from './JoinClause';
 import {
@@ -47,9 +46,9 @@ export default class ResourceQueryBuilder<
   }
 
   where(
-    ...conditions: Array<WhereConditions<TSchema> | Operator>
+    conditions: WhereConditions<TSchema>
   ): ResourceQueryBuilder<TSchema, TResource, TPrimaryKey> {
-    return super.where(...conditions) as ResourceQueryBuilder<
+    return super.where(conditions) as ResourceQueryBuilder<
       TSchema,
       TResource,
       TPrimaryKey
@@ -57,9 +56,9 @@ export default class ResourceQueryBuilder<
   }
 
   orWhere(
-    ...conditions: Array<WhereConditions<TSchema> | Operator>
+    conditions: WhereConditions<TSchema>
   ): ResourceQueryBuilder<TSchema, TResource, TPrimaryKey> {
-    return super.orWhere(...conditions) as ResourceQueryBuilder<
+    return super.orWhere(conditions) as ResourceQueryBuilder<
       TSchema,
       TResource,
       TPrimaryKey

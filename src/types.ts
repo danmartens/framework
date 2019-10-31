@@ -6,38 +6,44 @@ import BaseResource from './BaseResource';
 import Table from './Table';
 import CountFunction from './CountFunction';
 
-export interface TString {
-  type: 'string';
-  nullable: false;
-}
+namespace TColumn {
+  export interface String {
+    type: 'string';
+    nullable: false;
+  }
 
-export interface TNullableString {
-  type: 'string';
-  nullable: true;
-}
+  export interface NullableString {
+    type: 'string';
+    nullable: true;
+  }
 
-export interface TNumber {
-  type: 'number';
-  nullable: false;
-}
+  export interface Number {
+    type: 'number';
+    nullable: false;
+  }
 
-export interface TNullableNumber {
-  type: 'number';
-  nullable: true;
+  export interface NullableNumber {
+    type: 'number';
+    nullable: true;
+  }
 }
 
 export interface TableSchema {
-  [key: string]: TNumber | TNullableNumber | TString | TNullableString;
+  [key: string]:
+    | TColumn.Number
+    | TColumn.NullableNumber
+    | TColumn.String
+    | TColumn.NullableString;
 }
 
 export type TableAttributes<T extends TableSchema> = {
-  [K in keyof T]: T[K] extends TString
+  [K in keyof T]: T[K] extends TColumn.String
     ? string
-    : (T[K] extends TNullableString
+    : (T[K] extends TColumn.NullableString
         ? string | null
-        : (T[K] extends TNullableNumber
+        : (T[K] extends TColumn.NullableNumber
             ? number | null
-            : (T[K] extends TNumber ? number : never)));
+            : (T[K] extends TColumn.Number ? number : never)));
 };
 
 export interface ResourceClass<T extends TableSchema> {
@@ -45,17 +51,22 @@ export interface ResourceClass<T extends TableSchema> {
   table: Table<T>;
 }
 
-export type ColumnType<T> = T extends { type: 'string'; nullable: false }
+export type ColumnType<T> = T extends TColumn.String
   ? string | string[]
-  : (T extends { type: 'string'; nullable: true }
+  : (T extends TColumn.NullableString
       ? null | string | string[]
-      : (T extends TNumber
+      : (T extends TColumn.Number
           ? number | number[]
-          : (T extends TNullableNumber ? number | number[] | null : never)));
+          : (T extends TColumn.NullableNumber
+              ? number | number[] | null
+              : never)));
 
-export type WhereConditions<T extends TableSchema> = {
-  [K in keyof T]?: ColumnType<T[K]>;
-};
+export type WhereConditions<T extends TableSchema> =
+  | {
+      [K in keyof T]?: ColumnType<T[K]>;
+    }
+  | Operator
+  | ((table: Table<T>) => Operator);
 
 export type OrderConditions<T> = {
   [K in keyof T]?: 'ASC' | 'DESC';
