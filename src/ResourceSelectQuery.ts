@@ -10,14 +10,14 @@ import {
   WhereConditions,
   OrderConditions
 } from './types';
-import QueryBuilder from './QueryBuilder';
+import SelectQuery from './SelectQuery';
 import Table from './Table';
 
-export default class ResourceQueryBuilder<
+export default class ResourceSelectQuery<
   TSchema extends Schema,
   TResource extends ResourceClass<TSchema>,
   TPrimaryKey = number
-> extends QueryBuilder<TSchema>
+> extends SelectQuery<TSchema>
   implements PromiseLike<InstanceType<TResource>[]> {
   protected readonly resourceClass: TResource;
   protected readonly dataLoader: DataLoader<
@@ -47,8 +47,8 @@ export default class ResourceQueryBuilder<
 
   where(
     conditions: WhereConditions<TSchema>
-  ): ResourceQueryBuilder<TSchema, TResource, TPrimaryKey> {
-    return super.where(conditions) as ResourceQueryBuilder<
+  ): ResourceSelectQuery<TSchema, TResource, TPrimaryKey> {
+    return super.where(conditions) as ResourceSelectQuery<
       TSchema,
       TResource,
       TPrimaryKey
@@ -57,8 +57,8 @@ export default class ResourceQueryBuilder<
 
   orWhere(
     conditions: WhereConditions<TSchema>
-  ): ResourceQueryBuilder<TSchema, TResource, TPrimaryKey> {
-    return super.orWhere(conditions) as ResourceQueryBuilder<
+  ): ResourceSelectQuery<TSchema, TResource, TPrimaryKey> {
+    return super.orWhere(conditions) as ResourceSelectQuery<
       TSchema,
       TResource,
       TPrimaryKey
@@ -69,8 +69,8 @@ export default class ResourceQueryBuilder<
     type: JoinType,
     table: Table<any>,
     operator: EqualOperator
-  ): ResourceQueryBuilder<TSchema, TResource, TPrimaryKey> {
-    return super.join(type, table, operator) as ResourceQueryBuilder<
+  ): ResourceSelectQuery<TSchema, TResource, TPrimaryKey> {
+    return super.join(type, table, operator) as ResourceSelectQuery<
       TSchema,
       TResource,
       TPrimaryKey
@@ -80,8 +80,8 @@ export default class ResourceQueryBuilder<
   innerJoin(
     table: Table<any>,
     operator: EqualOperator
-  ): ResourceQueryBuilder<TSchema, TResource, TPrimaryKey> {
-    return super.innerJoin(table, operator) as ResourceQueryBuilder<
+  ): ResourceSelectQuery<TSchema, TResource, TPrimaryKey> {
+    return super.innerJoin(table, operator) as ResourceSelectQuery<
       TSchema,
       TResource,
       TPrimaryKey
@@ -90,26 +90,24 @@ export default class ResourceQueryBuilder<
 
   orderBy(
     conditions: OrderConditions<TSchema> | OrderByExpression
-  ): ResourceQueryBuilder<TSchema, TResource, TPrimaryKey> {
-    return super.orderBy(conditions) as ResourceQueryBuilder<
+  ): ResourceSelectQuery<TSchema, TResource, TPrimaryKey> {
+    return super.orderBy(conditions) as ResourceSelectQuery<
       TSchema,
       TResource,
       TPrimaryKey
     >;
   }
 
-  limit(limit: number): ResourceQueryBuilder<TSchema, TResource, TPrimaryKey> {
-    return super.limit(limit) as ResourceQueryBuilder<
+  limit(limit: number): ResourceSelectQuery<TSchema, TResource, TPrimaryKey> {
+    return super.limit(limit) as ResourceSelectQuery<
       TSchema,
       TResource,
       TPrimaryKey
     >;
   }
 
-  offset(
-    offset: number
-  ): ResourceQueryBuilder<TSchema, TResource, TPrimaryKey> {
-    return super.offset(offset) as ResourceQueryBuilder<
+  offset(offset: number): ResourceSelectQuery<TSchema, TResource, TPrimaryKey> {
+    return super.offset(offset) as ResourceSelectQuery<
       TSchema,
       TResource,
       TPrimaryKey
@@ -134,8 +132,8 @@ export default class ResourceQueryBuilder<
 
   protected mergeOptions(
     options: QueryOptions
-  ): ResourceQueryBuilder<TSchema, TResource, TPrimaryKey> {
-    return new ResourceQueryBuilder(this.resourceClass, {
+  ): ResourceSelectQuery<TSchema, TResource, TPrimaryKey> {
+    return new ResourceSelectQuery(this.resourceClass, {
       ...this.options,
       ...options
     });

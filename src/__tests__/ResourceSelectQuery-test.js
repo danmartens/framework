@@ -1,5 +1,5 @@
 import getClient from '../getClient';
-import ResourceQueryBuilder from '../ResourceQueryBuilder';
+import ResourceSelectQuery from '../ResourceSelectQuery';
 import Table from '../Table';
 
 jest.mock('../getClient');
@@ -24,7 +24,7 @@ const variants = new Table('variants', {
 
 class Product extends products.Resource {}
 
-const productsQuery = new ResourceQueryBuilder(Product);
+const productsQuery = new ResourceSelectQuery(Product);
 
 class Variant extends variants.Resource {
   async product() {
@@ -32,7 +32,7 @@ class Variant extends variants.Resource {
   }
 }
 
-describe('ResourceQueryBuilder', () => {
+describe('ResourceSelectQuery', () => {
   describe('#then()', () => {
     test('wraps the results in Resource classes', async () => {
       getClient.__setNextResult({
@@ -44,7 +44,7 @@ describe('ResourceQueryBuilder', () => {
         ]
       });
 
-      const result = await new ResourceQueryBuilder(Product);
+      const result = await new ResourceSelectQuery(Product);
 
       expect(result[0]).toBeInstanceOf(Product);
 
@@ -96,13 +96,13 @@ describe('ResourceQueryBuilder', () => {
 
   describe('#select()', () => {
     test('selecting all columns', () => {
-      let query = new ResourceQueryBuilder(Product);
+      let query = new ResourceSelectQuery(Product);
 
       expect(query.toSQL().text).toEqual('SELECT "products".* FROM "products"');
     });
 
     test('selecting specific columns', () => {
-      let query = new ResourceQueryBuilder(Product);
+      let query = new ResourceSelectQuery(Product);
 
       query = query.select('id', 'name');
 
@@ -112,7 +112,7 @@ describe('ResourceQueryBuilder', () => {
     });
 
     test('selecting columns from other tables', () => {
-      let query = new ResourceQueryBuilder(Product);
+      let query = new ResourceSelectQuery(Product);
 
       query = query.select('id', variants.col('id'));
 
@@ -122,7 +122,7 @@ describe('ResourceQueryBuilder', () => {
     });
 
     test('aliasing columns', () => {
-      let query = new ResourceQueryBuilder(Product);
+      let query = new ResourceSelectQuery(Product);
 
       query = query.select(products.col('id').as('product_id'));
 
@@ -132,7 +132,7 @@ describe('ResourceQueryBuilder', () => {
     });
 
     test('selecting count', () => {
-      let query = new ResourceQueryBuilder(Product);
+      let query = new ResourceSelectQuery(Product);
 
       query = query.select(products.col('id').count('products_count'));
 
@@ -142,7 +142,7 @@ describe('ResourceQueryBuilder', () => {
     });
 
     test('results are returned as plain objects', async () => {
-      let query = new ResourceQueryBuilder(Product);
+      let query = new ResourceSelectQuery(Product);
 
       query = query.select('id');
 
@@ -169,7 +169,7 @@ describe('ResourceQueryBuilder', () => {
 
   describe('#where()', () => {
     test('object where conditions', () => {
-      let query = new ResourceQueryBuilder(Product);
+      let query = new ResourceSelectQuery(Product);
 
       query = query.where({ name: 'Test Product' });
 
@@ -181,7 +181,7 @@ describe('ResourceQueryBuilder', () => {
     });
 
     test('operator where conditions', () => {
-      let query = new ResourceQueryBuilder(Product);
+      let query = new ResourceSelectQuery(Product);
 
       query = query.where(products.col('name').eq('Test Product'));
 
@@ -195,7 +195,7 @@ describe('ResourceQueryBuilder', () => {
 
   describe('#orWhere()', () => {
     test('object where conditions', () => {
-      let query = new ResourceQueryBuilder(Product);
+      let query = new ResourceSelectQuery(Product);
 
       query = query.where({ name: 'Jacket' }).orWhere({ name: 'Coat' });
 
@@ -207,7 +207,7 @@ describe('ResourceQueryBuilder', () => {
     });
 
     test('operator where conditions', () => {
-      let query = new ResourceQueryBuilder(Product);
+      let query = new ResourceSelectQuery(Product);
 
       query = query
         .where({ name: 'Jacket' })
