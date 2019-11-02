@@ -28,7 +28,7 @@ namespace TColumn {
   }
 }
 
-export interface TableSchema {
+export interface Schema {
   [key: string]:
     | TColumn.Number
     | TColumn.NullableNumber
@@ -36,7 +36,7 @@ export interface TableSchema {
     | TColumn.NullableString;
 }
 
-export type TableAttributes<T extends TableSchema> = {
+export type Attributes<T extends Schema> = {
   [K in keyof T]: T[K] extends TColumn.String
     ? string
     : (T[K] extends TColumn.NullableString
@@ -46,8 +46,8 @@ export type TableAttributes<T extends TableSchema> = {
             : (T[K] extends TColumn.Number ? number : never)));
 };
 
-export interface ResourceClass<T extends TableSchema> {
-  new (attributes: TableAttributes<T>): BaseResource<T>;
+export interface ResourceClass<T extends Schema> {
+  new (attributes: Attributes<T>): BaseResource<T>;
   table: Table<T>;
 }
 
@@ -61,7 +61,7 @@ export type ColumnType<T> = T extends TColumn.String
               ? number | number[] | null
               : never)));
 
-export type WhereConditions<T extends TableSchema> =
+export type WhereConditions<T extends Schema> =
   | {
       [K in keyof T]?: ColumnType<T[K]>;
     }

@@ -1,9 +1,10 @@
 import ResourceQueryBuilder from './ResourceQueryBuilder';
 import Table from './Table';
-import { TableSchema, ResourceClass, WhereConditions } from './types';
+import InsertQuery from './InsertQuery';
+import { Schema, ResourceClass, WhereConditions, Attributes } from './types';
 
 export default abstract class Repository<
-  TSchema extends TableSchema,
+  TSchema extends Schema,
   TResource extends ResourceClass<TSchema>,
   TPrimaryKey = number
 > {
@@ -30,5 +31,9 @@ export default abstract class Repository<
     }
 
     return this._query;
+  }
+
+  async insert(attributes: Partial<Attributes<TSchema>>) {
+    return new InsertQuery(this.resourceClass, attributes);
   }
 }

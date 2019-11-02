@@ -2,7 +2,7 @@ import Column from './columns/Column';
 import StringColumn from './columns/StringColumn';
 import NumberColumn from './columns/NumberColumn';
 import BaseResource from './BaseResource';
-import { TableSchema } from './types';
+import { Schema } from './types';
 
 interface ColumnType {
   string: typeof StringColumn;
@@ -14,7 +14,7 @@ const types: ColumnType = {
   number: NumberColumn
 };
 
-export default class Table<TSchema extends TableSchema> {
+export default class Table<TSchema extends Schema> {
   readonly name: string;
   readonly schema: TSchema;
 

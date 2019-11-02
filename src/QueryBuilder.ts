@@ -7,14 +7,14 @@ import Column from './columns/Column';
 import Query from './Query';
 import getClient from './getClient';
 import {
-  TableSchema,
+  Schema,
   QueryOptions,
   WhereConditions,
   OrderConditions
 } from './types';
 import CountFunction from './CountFunction';
 
-export default class QueryBuilder<TSchema extends TableSchema>
+export default class QueryBuilder<TSchema extends Schema>
   implements PromiseLike<object[]> {
   protected readonly table: Table<TSchema>;
   protected readonly options: QueryOptions;
@@ -139,7 +139,7 @@ export default class QueryBuilder<TSchema extends TableSchema>
   }
 }
 
-function whereConditionsToOperators<TSchema extends TableSchema>(
+function whereConditionsToOperators<TSchema extends Schema>(
   table: Table<any>,
   conditions: WhereConditions<TSchema>
 ): Operator {

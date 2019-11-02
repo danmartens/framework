@@ -1,13 +1,13 @@
 export type ValuePosition = number;
 
 export default class QueryValues {
-  protected readonly values: Array<string | number>;
+  protected readonly values: Array<string | number | undefined>;
 
-  constructor(...values: Array<string | number>) {
+  constructor(...values: Array<string | number | undefined>) {
     this.values = values;
   }
 
-  add(value: string | number): ValuePosition {
+  add(value: string | number | undefined): ValuePosition {
     this.values.push(value);
 
     return this.values.length;

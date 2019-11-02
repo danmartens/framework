@@ -4,7 +4,7 @@ import OrderByExpression from './OrderByExpression';
 import EqualOperator from './operators/EqualOperator';
 import { JoinType } from './JoinClause';
 import {
-  TableSchema,
+  Schema,
   ResourceClass,
   QueryOptions,
   WhereConditions,
@@ -14,7 +14,7 @@ import QueryBuilder from './QueryBuilder';
 import Table from './Table';
 
 export default class ResourceQueryBuilder<
-  TSchema extends TableSchema,
+  TSchema extends Schema,
   TResource extends ResourceClass<TSchema>,
   TPrimaryKey = number
 > extends QueryBuilder<TSchema>

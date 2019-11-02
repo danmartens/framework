@@ -1,11 +1,11 @@
 import Table from './Table';
-import { TableSchema, TableAttributes } from './types';
+import { Schema, Attributes } from './types';
 
-export default abstract class BaseResource<TSchema extends TableSchema> {
+export default abstract class BaseResource<TSchema extends Schema> {
   static readonly table: Table<any>;
-  protected readonly attributes: TableAttributes<TSchema>;
+  protected readonly attributes: Attributes<TSchema>;
 
-  constructor(attributes: TableAttributes<TSchema>) {
+  constructor(attributes: Attributes<TSchema>) {
     this.attributes = attributes;
   }
 
