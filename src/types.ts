@@ -6,44 +6,74 @@ import BaseResource from './BaseResource';
 import Table from './Table';
 import CountFunction from './CountFunction';
 
-namespace TColumn {
-  export interface String {
-    type: 'string';
-    nullable: false;
-  }
+export interface SchemaString {
+  type: 'string';
+  nullable: false;
+}
 
-  export interface NullableString {
-    type: 'string';
-    nullable: true;
-  }
+export interface SchemaNullableString {
+  type: 'string';
+  nullable: true;
+}
 
-  export interface Number {
-    type: 'number';
-    nullable: false;
-  }
+export interface SchemaInteger {
+  type: 'integer';
+  nullable: false;
+}
 
-  export interface NullableNumber {
-    type: 'number';
-    nullable: true;
-  }
+export interface SchemaNullableInteger {
+  type: 'integer';
+  nullable: true;
+}
+
+export type SchemaType =
+  | SchemaString
+  | SchemaNullableString
+  | SchemaInteger
+  | SchemaNullableInteger;
+
+export function isInteger(value: {
+  type: string;
+  nullable: boolean;
+}): value is SchemaInteger {
+  return value.type === 'integer' && value.nullable === false;
+}
+
+export function isNullableInteger(value: {
+  type: string;
+  nullable: boolean;
+}): value is SchemaNullableInteger {
+  return value.type === 'integer' && value.nullable === true;
+}
+
+export function isString(value: {
+  type: string;
+  nullable: boolean;
+}): value is SchemaString {
+  return value.type === 'string' && value.nullable === false;
+}
+
+export function isNullableString(value: {
+  type: string;
+  nullable: boolean;
+}): value is SchemaNullableString {
+  return value.type === 'string' && value.nullable === true;
 }
 
 export interface Schema {
-  [key: string]:
-    | TColumn.Number
-    | TColumn.NullableNumber
-    | TColumn.String
-    | TColumn.NullableString;
+  [key: string]: SchemaType;
 }
 
 export type Attributes<T extends Schema> = {
-  [K in keyof T]: T[K] extends TColumn.String
+  [K in keyof T]: T[K] extends SchemaString
     ? string
-    : (T[K] extends TColumn.NullableString
-        ? string | null
-        : (T[K] extends TColumn.NullableNumber
-            ? number | null
-            : (T[K] extends TColumn.Number ? number : never)));
+    : T[K] extends SchemaNullableString
+    ? string | null
+    : T[K] extends SchemaNullableInteger
+    ? number | null
+    : T[K] extends SchemaInteger
+    ? number
+    : never;
 };
 
 export interface ResourceClass<T extends Schema> {
@@ -51,15 +81,15 @@ export interface ResourceClass<T extends Schema> {
   table: Table<T>;
 }
 
-export type ColumnType<T> = T extends TColumn.String
+export type ColumnType<T> = T extends SchemaString
   ? string | string[]
-  : (T extends TColumn.NullableString
-      ? null | string | string[]
-      : (T extends TColumn.Number
-          ? number | number[]
-          : (T extends TColumn.NullableNumber
-              ? number | number[] | null
-              : never)));
+  : T extends SchemaNullableString
+  ? null | string | string[]
+  : T extends SchemaInteger
+  ? number | number[]
+  : T extends SchemaNullableInteger
+  ? number | number[] | null
+  : never;
 
 export type WhereConditions<T extends Schema> =
   | {

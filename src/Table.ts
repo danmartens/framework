@@ -2,16 +2,17 @@ import Column from './columns/Column';
 import StringColumn from './columns/StringColumn';
 import NumberColumn from './columns/NumberColumn';
 import BaseResource from './BaseResource';
+import graphQLObjectTypeForSchema from './graphQLObjectTypeForSchema';
 import { Schema } from './types';
 
 interface ColumnType {
   string: typeof StringColumn;
-  number: typeof NumberColumn;
+  integer: typeof NumberColumn;
 }
 
 const types: ColumnType = {
   string: StringColumn,
-  number: NumberColumn
+  integer: NumberColumn
 };
 
 export default class Table<TSchema extends Schema> {
@@ -50,4 +51,25 @@ export default class Table<TSchema extends Schema> {
 
     return Resource;
   }
+
+  get GraphQLObjectType() {
+    return graphQLObjectTypeForSchema(this.name, this.schema);
+  }
+
+  // get GraphQLInputObjectType(): GraphQLInputObjectType {
+  //   const fields: {
+  //     [key: string]: { type: ReturnType<typeof graphQLTypeForSchemaType> };
+  //   } = {};
+
+  //   for (const [columnName, schemaType] of Object.entries(this.schema)) {
+  //     fields[columnName] = {
+  //       type: graphQLTypeForSchemaType(schemaType)
+  //     };
+  //   }
+
+  //   return new GraphQLInputObjectType({
+  //     name: `${this.name}Input`,
+  //     fields
+  //   });
+  // }
 }

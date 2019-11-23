@@ -21,6 +21,7 @@ export default class InsertQuery<
   }
 
   toSQL() {
+    // @ts-ignore
     const values = new QueryValues(...Object.values(this.attributes));
 
     return {

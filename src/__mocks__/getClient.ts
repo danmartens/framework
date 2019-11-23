@@ -16,7 +16,7 @@ function getClient() {
   });
 }
 
-getClient.__setNextResult = result => {
+getClient.__setNextResult = (result: any) => {
   nextResult = result;
 };
 

@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build:watch": "tsc --watch",
-    "serve": "nodemon lib/index.js",
+    "server": "nodemon lib/index.js server",
     "test": "jest",
     "test:watch": "jest --watch",
     "types:check": "tsc --noEmit",

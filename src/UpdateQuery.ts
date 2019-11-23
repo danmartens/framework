@@ -26,6 +26,7 @@ export default class UpdateQuery<
 
   toSQL() {
     // TODO: Update QueryValues to support column names
+    // @ts-ignore
     const values = new QueryValues(...Object.values(this.attributes));
 
     const setSQL = Object.keys(this.attributes)

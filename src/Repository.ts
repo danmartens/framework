@@ -3,27 +3,24 @@ import Table from './Table';
 import InsertQuery from './InsertQuery';
 import UpdateQuery from './UpdateQuery';
 import DeleteQuery from './DeleteQuery';
-import Subscription from './observable/Subscription';
-import completeObserver from './observable/completeObserver';
-import { ObserverLike, PartialObserver } from './observable/types';
 import { Schema, ResourceClass, WhereConditions, Attributes } from './types';
 
-interface InsertAction<T> {
-  type: 'INSERT';
-  resources: T[];
-}
+// interface InsertAction<T> {
+//   type: 'INSERT';
+//   resources: T[];
+// }
 
-interface UpdateAction<T> {
-  type: 'UPDATE';
-  resources: T[];
-}
+// interface UpdateAction<T> {
+//   type: 'UPDATE';
+//   resources: T[];
+// }
 
-interface DeleteAction<T> {
-  type: 'DELETE';
-  resources: T[];
-}
+// interface DeleteAction<T> {
+//   type: 'DELETE';
+//   resources: T[];
+// }
 
-type Action<T> = InsertAction<T> | UpdateAction<T> | DeleteAction<T>;
+// type Action<T> = InsertAction<T> | UpdateAction<T> | DeleteAction<T>;
 
 export default abstract class Repository<
   TSchema extends Schema,
@@ -33,11 +30,11 @@ export default abstract class Repository<
   abstract readonly resourceClass: TResource;
   private _selectQuery?: ResourceSelectQuery<TSchema, TResource, TPrimaryKey>;
 
-  private readonly observers: Set<
-    ObserverLike<InsertAction<InstanceType<TResource>>>
-  > = new Set();
+  // private readonly observers: Set<
+  //   ObserverLike<InsertAction<InstanceType<TResource>>>
+  // > = new Set();
 
-  find(ids: TPrimaryKey[]) {
+  find(...ids: TPrimaryKey[]) {
     return this.selectQuery.find(ids);
   }
 
@@ -50,7 +47,7 @@ export default abstract class Repository<
   async insert(attributes: Partial<Attributes<TSchema>>) {
     const resource = await new InsertQuery(this.resourceClass, attributes);
 
-    this.broadcastAction({ type: 'INSERT', resources: [resource] });
+    // this.broadcastAction({ type: 'INSERT', resources: [resource] });
 
     return resource;
   }
@@ -65,7 +62,7 @@ export default abstract class Repository<
       attributes
     );
 
-    this.broadcastAction({ type: 'UPDATE', resources });
+    // this.broadcastAction({ type: 'UPDATE', resources });
 
     return resources;
   }
@@ -73,30 +70,30 @@ export default abstract class Repository<
   async delete(conditions: WhereConditions<TSchema>) {
     const resources = await new DeleteQuery(this.resourceClass, conditions);
 
-    this.broadcastAction({ type: 'DELETE', resources });
+    // this.broadcastAction({ type: 'DELETE', resources });
 
     return resources;
   }
 
-  subscribe(
-    partialObserver: PartialObserver<Action<InstanceType<TResource>>>
-  ): Subscription<Action<InstanceType<TResource>>> {
-    const observer = completeObserver(partialObserver);
+  // subscribe(
+  //   partialObserver: PartialObserver<Action<InstanceType<TResource>>>
+  // ): Subscription<Action<InstanceType<TResource>>> {
+  //   const observer = completeObserver(partialObserver);
 
-    this.observers.add(observer);
+  //   this.observers.add(observer);
 
-    return new Subscription(observer, () => {
-      return () => {
-        this.observers.delete(observer);
-      };
-    });
-  }
+  //   return new Subscription(observer, () => {
+  //     return () => {
+  //       this.observers.delete(observer);
+  //     };
+  //   });
+  // }
 
-  protected broadcastAction(action: Action<InstanceType<TResource>>) {
-    for (const observer of this.observers) {
-      observer.next(action);
-    }
-  }
+  // protected broadcastAction(action: Action<InstanceType<TResource>>) {
+  //   for (const observer of this.observers) {
+  //     observer.next(action);
+  //   }
+  // }
 
   protected get table(): Table<TSchema> {
     return this.resourceClass.table;

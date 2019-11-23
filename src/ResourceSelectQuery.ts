@@ -30,12 +30,18 @@ export default class ResourceSelectQuery<
 
     this.resourceClass = resourceClass;
 
+    // @ts-ignore
     this.dataLoader = new DataLoader(async ids => {
+      // @ts-ignore
       const resources = await this.where(this.table.col('id').eq(ids));
 
+      // @ts-ignore
       return ids.map(id => resources.find(resource => resource.id === id));
     });
   }
+
+  find(ids: TPrimaryKey): Promise<InstanceType<TResource>>;
+  find(ids: TPrimaryKey[]): Promise<InstanceType<TResource>[]>;
 
   find(ids: TPrimaryKey | TPrimaryKey[]) {
     if (Array.isArray(ids)) {
