@@ -15,7 +15,7 @@ const types: ColumnType = {
   integer: NumberColumn
 };
 
-export default class Table<TSchema extends Schema> {
+export default class Table<TSchema extends Schema.Relation> {
   readonly name: string;
   readonly schema: TSchema;
 

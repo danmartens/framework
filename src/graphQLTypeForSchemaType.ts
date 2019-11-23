@@ -1,27 +1,21 @@
 import { GraphQLString, GraphQLInt, GraphQLNonNull } from 'graphql';
 
-import {
-  SchemaType,
-  isInteger,
-  isNullableInteger,
-  isString,
-  isNullableString
-} from './types';
+import { Schema } from './types';
 
-export default function graphQLTypeForSchemaType(type: SchemaType) {
-  if (isInteger(type)) {
+export default function graphQLTypeForSchemaValue(type: Schema.Value) {
+  if (Schema.isInteger(type)) {
     return new GraphQLNonNull(GraphQLInt);
   }
 
-  if (isNullableInteger(type)) {
+  if (Schema.isNullableInteger(type)) {
     return GraphQLInt;
   }
 
-  if (isString(type)) {
+  if (Schema.isString(type)) {
     return new GraphQLNonNull(GraphQLString);
   }
 
-  if (isNullableString(type)) {
+  if (Schema.isNullableString(type)) {
     return GraphQLString;
   }
 

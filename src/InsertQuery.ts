@@ -4,7 +4,7 @@ import getClient from './getClient';
 import { Schema, ResourceClass, Attributes } from './types';
 
 export default class InsertQuery<
-  TSchema extends Schema,
+  TSchema extends Schema.Relation,
   TResource extends ResourceClass<TSchema>
 > implements PromiseLike<InstanceType<TResource>> {
   protected readonly table: Table<TSchema>;

@@ -4,7 +4,7 @@ import { Schema } from './types';
 
 export default function graphQLObjectTypeForSchema(
   name: string,
-  schema: Schema
+  schema: Schema.Relation
 ) {
   const fields: GraphQLObjectTypeConfig<
     unknown,

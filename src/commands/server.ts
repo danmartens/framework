@@ -4,17 +4,11 @@ import Table from '../Table';
 import { Schema, ResourceClass, Attributes } from '../types';
 import InsertQuery from '../InsertQuery';
 
-import {
-  GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLInputObjectType,
-  GraphQLString,
-  GraphQLInt
-} from 'graphql';
+import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
 
-const schema: Schema = {
+const schema: Schema.Relation = {
   id: {
-    type: 'number',
+    type: 'integer',
     nullable: false
   },
   name: {
@@ -28,7 +22,7 @@ const products = new Table('products', schema);
 class Product extends products.Resource {}
 
 function createMutationResolver<
-  TSchema extends Schema,
+  TSchema extends Schema.Relation,
   TResource extends ResourceClass<TSchema>
 >(
   resourceClass: TResource

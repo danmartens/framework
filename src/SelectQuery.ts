@@ -14,7 +14,7 @@ import {
 } from './types';
 import CountFunction from './CountFunction';
 
-export default class SelectQuery<TSchema extends Schema>
+export default class SelectQuery<TSchema extends Schema.Relation>
   implements PromiseLike<object[]> {
   protected readonly table: Table<TSchema>;
   protected readonly options: QueryOptions;

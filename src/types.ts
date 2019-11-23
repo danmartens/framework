@@ -6,92 +6,90 @@ import BaseResource from './BaseResource';
 import Table from './Table';
 import CountFunction from './CountFunction';
 
-export interface SchemaString {
-  type: 'string';
-  nullable: false;
+export namespace Schema {
+  export interface String {
+    type: 'string';
+    nullable: false;
+  }
+
+  export function isString(value: {
+    type: string;
+    nullable: boolean;
+  }): value is String {
+    return value.type === 'string' && value.nullable === false;
+  }
+
+  export interface NullableString {
+    type: 'string';
+    nullable: true;
+  }
+
+  export function isNullableString(value: {
+    type: string;
+    nullable: boolean;
+  }): value is NullableString {
+    return value.type === 'string' && value.nullable === true;
+  }
+
+  export interface Integer {
+    type: 'integer';
+    nullable: false;
+  }
+
+  export function isInteger(value: {
+    type: string;
+    nullable: boolean;
+  }): value is Integer {
+    return value.type === 'integer' && value.nullable === false;
+  }
+
+  export interface NullableInteger {
+    type: 'integer';
+    nullable: true;
+  }
+
+  export function isNullableInteger(value: {
+    type: string;
+    nullable: boolean;
+  }): value is NullableInteger {
+    return value.type === 'integer' && value.nullable === true;
+  }
+
+  export type Value = String | NullableString | Integer | NullableInteger;
+
+  export interface Relation {
+    [key: string]: Value;
+  }
 }
 
-export interface SchemaNullableString {
-  type: 'string';
-  nullable: true;
-}
-
-export interface SchemaInteger {
-  type: 'integer';
-  nullable: false;
-}
-
-export interface SchemaNullableInteger {
-  type: 'integer';
-  nullable: true;
-}
-
-export type SchemaType =
-  | SchemaString
-  | SchemaNullableString
-  | SchemaInteger
-  | SchemaNullableInteger;
-
-export function isInteger(value: {
-  type: string;
-  nullable: boolean;
-}): value is SchemaInteger {
-  return value.type === 'integer' && value.nullable === false;
-}
-
-export function isNullableInteger(value: {
-  type: string;
-  nullable: boolean;
-}): value is SchemaNullableInteger {
-  return value.type === 'integer' && value.nullable === true;
-}
-
-export function isString(value: {
-  type: string;
-  nullable: boolean;
-}): value is SchemaString {
-  return value.type === 'string' && value.nullable === false;
-}
-
-export function isNullableString(value: {
-  type: string;
-  nullable: boolean;
-}): value is SchemaNullableString {
-  return value.type === 'string' && value.nullable === true;
-}
-
-export interface Schema {
-  [key: string]: SchemaType;
-}
-
-export type Attributes<T extends Schema> = {
-  [K in keyof T]: T[K] extends SchemaString
+export type Attributes<T extends Schema.Relation> = {
+  [K in keyof T]: T[K] extends Schema.String
     ? string
-    : T[K] extends SchemaNullableString
+    : T[K] extends Schema.NullableString
     ? string | null
-    : T[K] extends SchemaNullableInteger
+    : T[K] extends Schema.NullableInteger
     ? number | null
-    : T[K] extends SchemaInteger
+    : T[K] extends Schema.Integer
     ? number
     : never;
 };
 
-export interface ResourceClass<T extends Schema> {
+export interface ResourceClass<T extends Schema.Relation> {
   new (attributes: Attributes<T>): BaseResource<T>;
   table: Table<T>;
 }
 
-export type ColumnType<T> = T extends SchemaString
+export type ColumnType<T> = T extends Schema.String
   ? string | string[]
-  : T extends SchemaNullableString
+  : T extends Schema.NullableString
   ? null | string | string[]
-  : T extends SchemaInteger
+  : T extends Schema.Integer
   ? number | number[]
-  : T extends SchemaNullableInteger
+  : T extends Schema.NullableInteger
   ? number | number[] | null
   : never;
 
-export type WhereConditions<T extends Schema> =
+export type WhereConditions<T extends Schema.Relation> =
   | {
       [K in keyof T]?: ColumnType<T[K]>;
     }
